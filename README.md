@@ -1,17 +1,24 @@
 # SteamMontage
 
-Small tool to create a graphical grid of your Steam games.
+Tool to create a graphical grid of your Steam games.
+
+Like this:
+
+![montagepreview](https://user-images.githubusercontent.com/18356494/211707819-df77199c-b302-4629-9b7e-716a249f0f4c.jpg)
+
+or even this:
+
+![montagepreviewhuge](https://user-images.githubusercontent.com/18356494/211707910-5241a3cc-fb84-4bdd-af7e-0ecfb83ba839.jpg)
 
 ## Get the app
 
 ### Binaries
 
-Pre-built binaries can be found on the releases page.  
+Pre-built binaries can be found on the [releases](https://github.com/grizzlybearington/steam-montage/releases) page.  
 Currently, only Windows and Linux are officially supported.
 
 ### I want to build SteamMontage myself
 
-Are you suuuuure?  
 Both the Windows and Linux binaries are built on Linux.
 
 #### Dependencies
@@ -80,7 +87,7 @@ config.txt options are detailed below:
 | width         | Sets width of montage. Defaults to 10.|
 
 That's it! SteamMontage will take care of the rest!  
-SteamMontage will output a file _montage.jpg_ wherever it is located.
+SteamMontage will output _montage.jpg_ wherever it is located.
 
 Note: **Any file named _montage.jpg_ (including previous montages) in the SteamMontage folder will be overridden.**
 
@@ -103,4 +110,6 @@ Note: **Any file named _montage.jpg_ (including previous montages) in the SteamM
 ## License
 
 GNU General Public License v3.0 or later.  
-Information can be found in [LICENSE](https://github.com/grizzlybearington/steam-montage/blob/main/LICENSE)
+Information can be found in [LICENSE](https://github.com/grizzlybearington/steam-montage/blob/main/LICENSE).
+
+SteamMontage is not in any way, shape or form affiliated with Valve Corporation or the Steam platform.
