@@ -1,3 +1,4 @@
+/* See LICENSE file for copyright & license details. */
 #include <getopt.h>
 #include <stdio.h>
 #include <string.h>

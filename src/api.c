@@ -1,3 +1,4 @@
+/* See LICENSE file for copyright & license details. */
 #include <stdio.h>
 #include <string.h>
 #include <curl/curl.h>
@@ -11,14 +12,14 @@
 #define JPEG_BYTE_1 255
 #define JPEG_BYTE_2 216
 
-static CURL* curl_handler;
+static CURL *curl_handler;
 
-static size_t write_mem_callback
-(void *ptr, size_t size, size_t nmemb, void *data)
+static size_t
+write_mem_callback (void *ptr, size_t size, size_t nmemb, void *data)
 {
     size_t realsize = size * nmemb;
-
     struct res_buffer *api_res = (struct res_buffer *) data;
+
     api_res->buffer = realloc(api_res->buffer, api_res->size + realsize + 1);
 
     if (api_res->buffer) {
@@ -29,7 +30,8 @@ static size_t write_mem_callback
     return realsize;
 }
 
-int init_curl()
+int
+init_curl()
 {
     curl_global_init(CURL_GLOBAL_ALL);
     curl_handler = NULL;
@@ -45,17 +47,20 @@ int init_curl()
     return 1;
 }
 
-int free_curl()
+int
+free_curl()
 {
     curl_easy_cleanup(curl_handler);
     curl_global_cleanup();
     return 1;
 }
 
-int get_game_header_data(struct res_buffer *api_res, int appid)
+int
+get_game_header_data(struct res_buffer *api_res, int appid)
 {
     CURLcode res;
     char url[HEADER_URL_SIZ];
+
     snprintf(url, HEADER_URL_SIZ,
             "http://cdn.akamai.steamstatic.com/steam/apps/%d/header.jpg",
             appid);
@@ -78,24 +83,18 @@ int get_game_header_data(struct res_buffer *api_res, int appid)
     return 1;
 }
 
-struct json_data
+json_data
 get_json_data(struct config *cfg)
 {
-    struct json_data res_data = {
-        .games_array = NULL,
-        .games_count = 0
-    };
-
-    struct res_buffer api_res = {
-        .buffer = NULL,
-        .size = 0
-    };
-
+    struct res_buffer api_res;
+    json_data res_data;
     CURLcode res;
     cJSON *full_json_res = NULL;
+    cJSON *json_res;
+    cJSON *game_count;
     cJSON *games = NULL;
-
     char url[API_URL_SIZ];
+
     snprintf(url, API_URL_SIZ,
             "http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001"
             "?key=%s&steamid=%s&format=json",
@@ -122,7 +121,7 @@ get_json_data(struct config *cfg)
         goto end;
     }
 
-    cJSON *json_res = cJSON_GetObjectItemCaseSensitive
+    json_res = cJSON_GetObjectItemCaseSensitive
                                 (full_json_res, "response");
     res_data.games_array = cJSON_DetachItemFromObjectCaseSensitive
                                 (json_res, "games");
@@ -134,7 +133,7 @@ get_json_data(struct config *cfg)
         goto end;
     }
 
-    cJSON *game_count = cJSON_GetObjectItemCaseSensitive
+    game_count = cJSON_GetObjectItemCaseSensitive
                             (json_res, "game_count");
 
     if (!cJSON_IsNumber(game_count)) {

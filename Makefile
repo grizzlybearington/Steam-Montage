@@ -34,7 +34,7 @@ $(VERSIONFILE): .git/COMMIT_EDITMSG .git/HEAD
 	$(CC) -c $< -o $@
 
 clean:
-	rm -f $(OBJECTS) $(TARGET) $(VERSIONFILE)
+	rm -f $(OBJECTS) $(TARGET) $(BINARY_FOLDER)/*
 
 help:
 	@echo

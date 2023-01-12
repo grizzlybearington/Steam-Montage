@@ -1,3 +1,4 @@
+/* See LICENSE file for copyright & license details. */
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
@@ -13,8 +14,8 @@
 #define FIL_NAM "montage.jpg"
 #define FIL_NAM_LEN 12
 
-int cmyk_into_rgb
-(unsigned char *cmyk_data, unsigned char *rgb_data, long pixel_count)
+int
+cmyk_into_rgb (unsigned char *cmyk_data, unsigned char *rgb_data, long pixel_count)
 {
     unsigned char *src = cmyk_data;
     unsigned char *dest = rgb_data;
@@ -36,13 +37,11 @@ int cmyk_into_rgb
 }
 
 int get_raw_img_data
-(struct img_data *cur_hdr_img, struct res_buffer *api_res)
+(img_data *cur_hdr_img, struct res_buffer *api_res)
 {
     struct jpeg_decompress_struct hdr_info;
     struct jpeg_error_mgr err;
-
     int retval = 0;
-
     unsigned char* raw_row_buffer[1];
 
     hdr_info.err = jpeg_std_error(&err);
@@ -75,14 +74,12 @@ int get_raw_img_data
             jpeg_read_scanlines(&hdr_info, raw_row_buffer, 1);
         }
         cmyk_into_rgb(cmyk_buffer, cur_hdr_img->raw_data, pixel_count);
-
     } else {
-
         while (hdr_info.output_scanline < hdr_info.output_height) {
-        raw_row_buffer[0] = (unsigned char*)
-                    (&cur_hdr_img->raw_data[3 *hdr_info.output_width
-                                         *hdr_info.output_scanline]);
-        jpeg_read_scanlines(&hdr_info, raw_row_buffer, 1);
+            raw_row_buffer[0] = (unsigned char*)
+                        (&cur_hdr_img->raw_data[3 *hdr_info.output_width
+                                            *hdr_info.output_scanline]);
+            jpeg_read_scanlines(&hdr_info, raw_row_buffer, 1);
         }
     }
 
@@ -95,17 +92,24 @@ end:
     return retval;
 }
 
-int create_montage(struct config *cfg, struct runningdir runningdir)
+int create_montage(struct config *cfg, runningdir currdir)
 {
     int retval = -1;
+    int fullpathlen = currdir.dirlen + FIL_NAM_LEN;
+    int mon_x, mon_y;
+    int curcol = 0, currow = 0;
+    cJSON *game = NULL;
     struct jpeg_compress_struct outinfo;
     struct jpeg_error_mgr err;
-
-    FILE* outfile;
-    int fullpathlen = runningdir.dirlen + FIL_NAM_LEN;
+    struct res_buffer api_res;
+    json_data json_info = get_json_data(cfg);
+    img_data cur_hdr_img;
+    FILE *outfile;
     char outfilepath[fullpathlen];
+    unsigned char *row_buffer[1];
+    unsigned char *montage_rgb = NULL;
 
-    snprintf(outfilepath, fullpathlen + 1, "%s%s", runningdir.dirpath,
+    snprintf(outfilepath, fullpathlen + 1, "%s%s", currdir.dirpath,
                 FIL_NAM);
 
     outfile = fopen(outfilepath, "wb");
@@ -115,13 +119,11 @@ int create_montage(struct config *cfg, struct runningdir runningdir)
         return retval;
     }
 
-    struct json_data json_info = get_json_data(cfg);
     if (json_info.games_array == NULL) {
         retval = -1;
         goto end;
     }
 
-    unsigned char* row_buffer[1];
     outinfo.err = jpeg_std_error(&err);
     jpeg_create_compress(&outinfo);
 
@@ -142,35 +144,27 @@ int create_montage(struct config *cfg, struct runningdir runningdir)
     outinfo.input_components = 3;
     outinfo.in_color_space = JCS_RGB;
 
-    unsigned char *montage_rgb = malloc(sizeof(unsigned char)*
-                        (outinfo.image_width * outinfo.image_height * 3));
+    montage_rgb = malloc(sizeof(unsigned char)* (outinfo.image_width *
+            outinfo.image_height * 3));
     if (montage_rgb == NULL) {
         print_oom();
         goto end;
     }
 
-    struct res_buffer api_res = {
-        .buffer = malloc(1),
-    };
+    api_res.buffer = malloc(1);
     if (api_res.buffer == NULL) {
         print_oom();
         goto end;
     }
-
-    struct img_data cur_hdr_img = {
-        .num_components = 0
-    };
-
-    int mon_x, mon_y;
-    int curcol = 0, currow = 0;
-
-    cJSON* game = NULL;
+    cur_hdr_img.num_components = 0;
 
     fprintf(stderr,
             "Found %d games\n", json_info.games_count);
 
     cJSON_ArrayForEach(game, json_info.games_array) {
         cJSON* appid = cJSON_GetObjectItemCaseSensitive(game, "appid");
+        int hdr_x, hdr_y;
+
         if (!cJSON_IsNumber(appid)) {
             fprintf(stderr,
                     "appid isn't a number? Skipping...\n");
@@ -191,9 +185,9 @@ int create_montage(struct config *cfg, struct runningdir runningdir)
             continue;
         }
 
-        for (int hdr_y = 0, mon_y = HDR_HEIGHT * currow; hdr_y < HDR_HEIGHT;
+        for (hdr_y = 0, mon_y = HDR_HEIGHT * currow; hdr_y < HDR_HEIGHT;
                                                 hdr_y++, mon_y++) {
-            for (int hdr_x = 0, mon_x = HDR_WIDTH * curcol; hdr_x < HDR_WIDTH;
+            for (hdr_x = 0, mon_x = HDR_WIDTH * curcol; hdr_x < HDR_WIDTH;
                                                     hdr_x++, mon_x++) {
 
                 montage_rgb[(mon_y*outinfo.image_width*3)+(mon_x*3)+0]

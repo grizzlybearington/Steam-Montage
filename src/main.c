@@ -1,3 +1,8 @@
+/* https://github.com/grizzlybearington/steam-montage
+ * See LICENSE file for copyright & license details.
+ *
+ * Most information can be found in the README.
+ */
 #include <stdio.h>
 #include <string.h>
 #include <curl/curl.h>
@@ -13,6 +18,9 @@
 int
 main (int argc, char *argv[])
 {
+	int exit_code = 0;
+	runningdir runningdir;
+
 	printf("steammontage %s - "
 		"https://github.com/grizzlybearington/steammontage\n\n", SM_VERSION);
 
@@ -24,7 +32,7 @@ main (int argc, char *argv[])
 
 	if (!parse_args(&opts, argc, argv)) {
 		print_cli_failure(argv[0]);
-		return 0;
+		return exit_code;
 	}
 
 	if (opts.help) {
@@ -36,32 +44,28 @@ main (int argc, char *argv[])
 		return 1;
 	}
 
-	struct runningdir runningdir = {
-		.dirpath = NULL,
-		.dirlen = 0
-	};
-
-	if (get_running_dir(&runningdir) == 0) {
+	if (get_running_dir(&runningdir) < 0) {
 		goto end;
 	}
 
-	if (parse_config(runningdir.dirpath, &opts.cfg) == -1) {
+	if (parse_config(runningdir.dirpath, &opts.cfg) < 0) {
 		goto end;
 	}
 
-	if (validate_input(&opts.cfg) == -1) {
+	if (validate_input(&opts.cfg) < 0) {
 		goto end;
 	}
 
 	init_curl();
 
-	if (create_montage(&opts.cfg, runningdir) == -1) {
+	if (create_montage(&opts.cfg, runningdir) < 0) {
 		goto end;
 	}
+	exit_code = 1;
 	printf("Job's done!\n");
 
 end:
 	free_curl();
 	free(runningdir.dirpath);
-	return 1;
+	return exit_code;
 }

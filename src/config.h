@@ -1,3 +1,4 @@
+/* See LICENSE file for copyright & license details. */
 #ifndef SM_CONFIG_H
 #define SM_CONFIG_H
 
@@ -16,10 +17,10 @@
 #define STEAM_API_LEN 32
 #define STEAM_ID_LEN 17
 
-struct runningdir {
+typedef struct {
     char *dirpath;
     int dirlen;
-};
+} runningdir;
 
 struct config {
     char api_key[STEAM_API_LEN + 1];
@@ -33,22 +34,16 @@ struct config {
     .width = CFG_DEFAULT_WIDTH, \
 }
 
-int
-validate_input(struct config *cfg);
+int validate_input(struct config *cfg);
 
-int
-parse_api_key(const char *arg, char *api_key);
+int parse_api_key(const char *arg, char *api_key);
 
-int
-parse_steam_id(const char *arg, char *steam_id);
+int parse_steam_id(const char *arg, char *steam_id);
 
-int
-parse_width(const char *arg, uint16_t *width);
+int parse_width(const char *arg, uint16_t *width);
 
-int
-get_running_dir(struct runningdir *runningdir);
+int get_running_dir(runningdir *currdir);
 
-int
-parse_config(char *cfgpath, struct config *cfg);
+int parse_config(char *cfgpath, struct config *cfg);
 
 #endif
