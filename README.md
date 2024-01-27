@@ -25,6 +25,8 @@ Both the Windows and Linux binaries are built on Linux.
 
 * [libcurl](https://curl.se/libcurl/libcurl) (32-bit)
 * [libjpeg](https://libjpeg-turbo.org) (32-bit)
+* [cJSON](https://github.com/DaveGamble/cJSON)
+* [whereami](https://github.com/gpakosz/whereami)
 
 #### Linux
 
